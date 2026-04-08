@@ -6,13 +6,15 @@
     <title>Pomodoro Pro</title>
     <style>
         :root {
-            --bg-color: #f0f2f5;
-            --primary-color: #e74c3c;
-            --text-color: #2c3e50;
-            --accent-color: #ffffff;
+            --bg-color: #ba4a3a;
+            --accent-color: rgba(255, 255, 255, 0.2);
+            --text-color: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --transition-speed: 0.5s;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             display: flex;
@@ -20,68 +22,153 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            transition: background-color var(--transition-speed) ease;
+            overflow: hidden;
         }
         .container {
             text-align: center;
-            background: var(--accent-color);
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 350px;
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            width: 380px;
+            position: relative;
+            z-index: 1;
+        }
+        h1 {
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+        #quote-display {
+            font-style: italic;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            min-height: 1.2em;
+        }
+        .timer-wrapper {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            margin: 0 auto 2rem auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .progress-ring {
+            position: absolute;
+            transform: rotate(-90deg);
+        }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.1s linear;
+            stroke: var(--text-color);
+            stroke-linecap: round;
         }
         .timer-display {
-            font-size: 5rem;
+            font-size: 4rem;
             font-weight: bold;
-            margin: 1rem 0;
             font-variant-numeric: tabular-nums;
         }
         .controls {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             justify-content: center;
+            margin-bottom: 2rem;
         }
         button {
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 1rem;
             cursor: pointer;
             border: none;
-            border-radius: 8px;
-            transition: transform 0.1s, background-color 0.2s;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            background: var(--text-color);
+            color: var(--bg-color);
         }
-        .btn-start { background-color: var(--primary-color); color: white; }
-        .btn-pause { background-color: #f39c12; color: white; }
-        .btn-reset { background-color: #95a5a6; color: white; }
-        button:active { transform: scale(0.95); }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        button:active { transform: translateY(0); }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
         .mode-selector {
-            margin-bottom: 20px;
             display: flex;
             justify-content: center;
-            gap: 5px;
+            gap: 10px;
+            margin-bottom: 2rem;
         }
         .mode-btn {
-            background: #ddd;
-            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 6px 12px;
             font-size: 0.8rem;
+            border: 1px solid var(--glass-border);
         }
         .mode-btn.active {
-            background: var(--primary-color);
-            color: white;
+            background: white;
+            color: var(--bg-color);
+        }
+        #streak-counter {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        .celebrate {
+            animation: pulse 0.5s ease-in-out infinite alternate;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="main-container">
         <h1>Pomodoro Pro</h1>
+        <div id="quote-display">Stay focused!</div>
+
+        <div id="streak-counter">🍅 0/4</div>
+
         <div class="mode-selector">
-            <button class="mode-btn active" data-time="25">Pomodoro</button>
-            <button class="mode-btn" data-time="5">Short Break</button>
-            <button class="mode-btn" data-time="15">Long Break</button>
+            <button class="mode-btn active" data-time="25" data-color="#ba4a3a">Pomodoro</button>
+            <button class="mode-btn" data-time="5" data-color="#4caf50">Short Break</button>
+            <button class="mode-btn" data-time="15" data-color="#2196f3">Long Break</button>
         </div>
-        <div class="timer-display" id="display">25:00</div>
+
+        <div class="timer-wrapper">
+            <svg class="progress-ring" width="250" height="250">
+                <circle
+                    class="progress-ring__circle"
+                    stroke-width="8"
+                    stroke="rgba(255,255,255,0.2)"
+                    fill="transparent"
+                    r="110" cx="125" cy="125"
+                />
+                <circle
+                    id="progress-bar"
+                    class="progress-ring__circle"
+                    stroke-width="8"
+                    stroke="white"
+                    fill="transparent"
+                    r="110" cx="125" cy="125"
+                    stroke-dasharray="691.15"
+                    stroke-dashoffset="0"
+                />
+            </svg>
+            <div class="timer-display" id="display">25:00</div>
+        </div>
+
         <div class="controls">
-            <button class="btn-start" id="start">Start</button>
-            <button class="btn-pause" id="pause">Pause</button>
-            <button class="btn-reset" id="reset">Reset</button>
+            <button id="start">Start</button>
+            <button id="pause">Pause</button>
+            <button id="reset">Reset</button>
         </div>
     </div>
     <script src="src/main.js"></script>

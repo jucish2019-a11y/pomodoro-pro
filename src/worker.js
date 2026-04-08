@@ -1,10 +1,9 @@
 /*
-  Worker script to handle timing.
-  By running the interval in a Worker, we avoid the main thread's
-  throttling during background tabs.
+  Precision Worker using timestamp delta to prevent drift.
 */
 let timerInterval = null;
 let secondsRemaining = 0;
+let expectedNextTick = 0;
 
 self.onmessage = function(e) {
     const { command, value } = e.data;
@@ -12,16 +11,28 @@ self.onmessage = function(e) {
     switch (command) {
         case 'start':
             if (timerInterval) return;
+
+            // Set the first expected tick to exactly 1 second from now
+            expectedNextTick = Date.now() + 1000;
+
             timerInterval = setInterval(() => {
-                if (secondsRemaining > 0) {
-                    secondsRemaining--;
-                    self.postMessage({ type: 'tick', seconds: secondsRemaining });
-                } else {
-                    clearInterval(timerInterval);
-                    timerInterval = null;
-                    self.postMessage({ type: 'finished' });
+                const now = Date.now();
+
+                // If we are slightly behind, we catch up by ticking multiple times
+                // This prevents drift during browser backgrounding
+                while (now >= expectedNextTick) {
+                    if (secondsRemaining > 0) {
+                        secondsRemaining--;
+                        self.postMessage({ type: 'tick', seconds: secondsRemaining });
+                    } else {
+                        self.postMessage({ type: 'finished' });
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                        return;
+                    }
+                    expectedNextTick += 1000;
                 }
-            }, 1000);
+            }, 250); // Check more frequently than 1s to ensure precision
             break;
 
         case 'pause':
