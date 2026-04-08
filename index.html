@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Pro</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --primary-color: #e74c3c;
+            --text-color: #2c3e50;
+            --accent-color: #ffffff;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background: var(--accent-color);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 350px;
+        }
+        .timer-display {
+            font-size: 5rem;
+            font-weight: bold;
+            margin: 1rem 0;
+            font-variant-numeric: tabular-nums;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+        .btn-start { background-color: var(--primary-color); color: white; }
+        .btn-pause { background-color: #f39c12; color: white; }
+        .btn-reset { background-color: #95a5a6; color: white; }
+        button:active { transform: scale(0.95); }
+        .mode-selector {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+        .mode-btn {
+            background: #ddd;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+        .mode-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pomodoro Pro</h1>
+        <div class="mode-selector">
+            <button class="mode-btn active" data-time="25">Pomodoro</button>
+            <button class="mode-btn" data-time="5">Short Break</button>
+            <button class="mode-btn" data-time="15">Long Break</button>
+        </div>
+        <div class="timer-display" id="display">25:00</div>
+        <div class="controls">
+            <button class="btn-start" id="start">Start</button>
+            <button class="btn-pause" id="pause">Pause</button>
+            <button class="btn-reset" id="reset">Reset</button>
+        </div>
+    </div>
+    <script src="src/main.js"></script>
+</body>
+</html>
