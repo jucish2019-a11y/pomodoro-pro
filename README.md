@@ -44,7 +44,7 @@ If you have Python installed, this is the fastest way to run the app locally.
 1. Open your terminal/command prompt.
 2. Navigate to the project folder:
    ```bash
-   cd "C:/Users/ishaa/OneDrive/Desktop/sandbox/sandbox/pomodoro-pro"
+   cd path/to/pomodoro-pro
    ```
 3. Start the server:
    ```bash
